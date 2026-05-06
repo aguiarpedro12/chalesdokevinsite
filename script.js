@@ -71,7 +71,17 @@ function openModal() {
 
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
+
+  /*
+    Travamos o body para o fundo não rolar.
+    A própria galeria terá rolagem pelo CSS.
+  */
   document.body.style.overflow = 'hidden';
+
+  /*
+    Sempre abre a galeria do topo.
+  */
+  modal.scrollTop = 0;
 }
 
 function closeModal() {
@@ -80,6 +90,9 @@ function closeModal() {
   modal.classList.remove('show');
   modal.setAttribute('aria-hidden', 'true');
 
+  /*
+    Se a imagem individual não estiver aberta, libera a rolagem da página.
+  */
   if (!fullscreenModal?.classList.contains('show')) {
     document.body.style.overflow = '';
   }
@@ -96,6 +109,10 @@ function openFullscreenImage(imageSrc, imageAlt) {
 
   fullscreenModal.classList.add('show');
   fullscreenModal.setAttribute('aria-hidden', 'false');
+
+  /*
+    Enquanto a imagem individual estiver aberta, nada no fundo rola.
+  */
   document.body.style.overflow = 'hidden';
 }
 
@@ -106,6 +123,10 @@ function closeFullscreen() {
   fullscreenModal.setAttribute('aria-hidden', 'true');
   fullscreenImage.src = '';
 
+  /*
+    Se a galeria completa ainda estiver aberta, mantém o body travado,
+    mas a galeria continua rolando por conta própria.
+  */
   if (!modal?.classList.contains('show')) {
     document.body.style.overflow = '';
   }
@@ -135,6 +156,10 @@ function makeImageClickableWithoutSelection(selector) {
       event.preventDefault();
       clearTextSelection();
     });
+
+    image.addEventListener('touchstart', () => {
+      clearTextSelection();
+    }, { passive: true });
 
     image.addEventListener('dragstart', (event) => {
       event.preventDefault();

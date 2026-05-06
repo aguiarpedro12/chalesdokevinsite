@@ -1059,3 +1059,104 @@ img,
     padding-top: 20px;
   }
 }
+
+/* ================================
+   CORREÇÃO MODAL / GALERIA MOBILE
+   ================================ */
+
+/* Galeria completa: permite rolar no celular */
+.modal.show {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Barra superior da galeria */
+.modal-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Conteúdo da galeria no celular */
+.modal-content {
+  padding-bottom: 80px;
+}
+
+/* Imagem em tela cheia: centraliza e respeita a tela */
+.fullscreen-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Imagem aberta individualmente */
+.fullscreen-content {
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 28px);
+  max-height: calc(100vh - 130px);
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .modal.show {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: 100vh;
+    max-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .modal-topbar {
+    padding: 18px 24px;
+  }
+
+  .modal-topbar strong {
+    font-size: 1.25rem;
+  }
+
+  .modal-content {
+    width: calc(100% - 32px);
+    margin: 28px auto 90px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .imgmodal {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 22px;
+  }
+
+  .fullscreen-modal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 14px 80px;
+    overflow: hidden !important;
+  }
+
+  .fullscreen-content {
+    width: auto !important;
+    height: auto !important;
+    max-width: calc(100vw - 28px) !important;
+    max-height: calc(100vh - 170px) !important;
+    object-fit: contain !important;
+    border-radius: 18px;
+  }
+
+  .close-fullscreen {
+    top: 24px;
+    right: 24px;
+    z-index: 20;
+  }
+}
