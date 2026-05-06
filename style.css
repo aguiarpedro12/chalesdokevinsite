@@ -1160,3 +1160,44 @@ img,
     z-index: 20;
   }
 }
+
+
+.fullscreen-modal.show {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 80px 16px !important;
+  overflow: hidden !important;
+}
+
+.fullscreen-content {
+  display: block !important;
+
+  width: auto !important;
+  height: auto !important;
+
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100vh - 160px) !important;
+
+  object-fit: contain !important;
+  object-position: center !important;
+
+  border-radius: 18px;
+}
+
+
+@media (max-width: 768px) {
+  .fullscreen-modal.show {
+    padding: 90px 14px 90px !important;
+  }
+
+  .fullscreen-content {
+    width: auto !important;
+    height: auto !important;
+
+    max-width: calc(100vw - 28px) !important;
+    max-height: calc(100vh - 190px) !important;
+
+    object-fit: contain !important;
+  }
+}
