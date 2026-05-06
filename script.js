@@ -75,7 +75,16 @@ function openModal() {
 
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
+
+  /*
+    Trava o fundo da página.
+    A própria galeria completa rola por conta do CSS.
+  */
   document.body.style.overflow = 'hidden';
+
+  /*
+    Sempre abre a galeria completa do topo.
+  */
   modal.scrollTop = 0;
 }
 
@@ -185,7 +194,7 @@ fullscreenModal?.addEventListener('click', (event) => {
 });
 
 /* ================================
-   FUNÇÃO PARA TRANSFORMAR IMAGENS EM MODAL/CARROSSEL
+   TRANSFORMAR IMAGENS EM MODAL/CARROSSEL
    ================================ */
 
 function prepareImageGroup(selector) {
@@ -210,6 +219,28 @@ function prepareImageGroup(selector) {
     image.addEventListener('click', (event) => {
       event.preventDefault();
       clearTextSelection();
+
+      /*
+        Se a imagem clicada pertence a um slider dos chalés/feedbacks,
+        abrimos exatamente a imagem que está ativa/visível na tela.
+      */
+      const sliderContainer = image.closest('.img-chales');
+
+      if (sliderContainer) {
+        const sliderImages = Array.from(sliderContainer.querySelectorAll('img'));
+        const activeIndex = sliderImages.findIndex((img) => img.classList.contains('active'));
+
+        openFullscreenCarousel(
+          sliderImages,
+          activeIndex >= 0 ? activeIndex : index
+        );
+
+        return;
+      }
+
+      /*
+        Para galeria normal, abre a imagem clicada.
+      */
       openFullscreenCarousel(images, index);
     });
   });
@@ -229,18 +260,19 @@ prepareImageGroup('.modal-content .imgmodal');
 
 /*
   Imagens do Chalé A.
+  Nova arquitetura da seção de acomodações usando .lodge-card.
 */
-prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(1) .img-chales img');
+prepareImageGroup('#acomodacoes .lodge-card:nth-of-type(1) .img-chales img');
 
 /*
   Imagens do Chalé B.
 */
-prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(2) .img-chales img');
+prepareImageGroup('#acomodacoes .lodge-card:nth-of-type(2) .img-chales img');
 
 /*
   Imagens do Chalé C.
 */
-prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(3) .img-chales img');
+prepareImageGroup('#acomodacoes .lodge-card:nth-of-type(3) .img-chales img');
 
 /*
   Feedbacks também ficam navegáveis em tela cheia.
