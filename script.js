@@ -15,6 +15,10 @@ document.querySelectorAll('.mobile-menu a').forEach((link) => {
   });
 });
 
+/* ================================
+   SLIDERS DOS CHALÉS E FEEDBACKS
+   ================================ */
+
 function setupSlider(sliderElement) {
   const images = Array.from(sliderElement.querySelectorAll('.img-chales img'));
   const prevButton = sliderElement.querySelector('.prev');
@@ -50,13 +54,13 @@ function setupSlider(sliderElement) {
 
 document.querySelectorAll('[data-slider]').forEach(setupSlider);
 
+/* ================================
+   MODAL DA GALERIA COMPLETA
+   ================================ */
+
 const modal = document.getElementById('myModal');
 const openModalButton = document.getElementById('verMaisBtn');
 const closeModalButton = document.querySelector('.close');
-
-const fullscreenModal = document.getElementById('fullscreenModal');
-const fullscreenImage = document.getElementById('fullscreenImg');
-const closeFullscreenButton = document.querySelector('.close-fullscreen');
 
 function clearTextSelection() {
   if (window.getSelection) {
@@ -71,16 +75,7 @@ function openModal() {
 
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
-
-  /*
-    Travamos o body para o fundo não rolar.
-    A própria galeria terá rolagem pelo CSS.
-  */
   document.body.style.overflow = 'hidden';
-
-  /*
-    Sempre abre a galeria do topo.
-  */
   modal.scrollTop = 0;
 }
 
@@ -90,29 +85,55 @@ function closeModal() {
   modal.classList.remove('show');
   modal.setAttribute('aria-hidden', 'true');
 
-  /*
-    Se a imagem individual não estiver aberta, libera a rolagem da página.
-  */
   if (!fullscreenModal?.classList.contains('show')) {
     document.body.style.overflow = '';
   }
 }
 
-function openFullscreenImage(imageSrc, imageAlt) {
-  if (!fullscreenModal || !fullscreenImage) return;
+openModalButton?.addEventListener('click', openModal);
+closeModalButton?.addEventListener('click', closeModal);
+
+modal?.addEventListener('click', (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
+/* ================================
+   MODAL CARROSSEL FULLSCREEN
+   ================================ */
+
+const fullscreenModal = document.getElementById('fullscreenModal');
+const fullscreenImage = document.getElementById('fullscreenImg');
+const closeFullscreenButton = document.querySelector('.close-fullscreen');
+const fullscreenPrevButton = document.querySelector('.fullscreen-prev');
+const fullscreenNextButton = document.querySelector('.fullscreen-next');
+
+let currentImageGroup = [];
+let currentFullscreenIndex = 0;
+
+function updateFullscreenImage() {
+  if (!fullscreenImage || currentImageGroup.length === 0) return;
+
+  const currentImage = currentImageGroup[currentFullscreenIndex];
+
+  fullscreenImage.src = currentImage.src;
+  fullscreenImage.alt = currentImage.alt || 'Imagem ampliada dos Chalés do Kevin';
+  fullscreenImage.setAttribute('draggable', 'false');
+}
+
+function openFullscreenCarousel(images, startIndex = 0) {
+  if (!fullscreenModal || !fullscreenImage || images.length === 0) return;
 
   clearTextSelection();
 
-  fullscreenImage.src = imageSrc;
-  fullscreenImage.alt = imageAlt || 'Imagem ampliada dos Chalés do Kevin';
-  fullscreenImage.setAttribute('draggable', 'false');
+  currentImageGroup = images;
+  currentFullscreenIndex = startIndex;
+
+  updateFullscreenImage();
 
   fullscreenModal.classList.add('show');
   fullscreenModal.setAttribute('aria-hidden', 'false');
-
-  /*
-    Enquanto a imagem individual estiver aberta, nada no fundo rola.
-  */
   document.body.style.overflow = 'hidden';
 }
 
@@ -123,24 +144,39 @@ function closeFullscreen() {
   fullscreenModal.setAttribute('aria-hidden', 'true');
   fullscreenImage.src = '';
 
-  /*
-    Se a galeria completa ainda estiver aberta, mantém o body travado,
-    mas a galeria continua rolando por conta própria.
-  */
+  currentImageGroup = [];
+  currentFullscreenIndex = 0;
+
   if (!modal?.classList.contains('show')) {
     document.body.style.overflow = '';
   }
 }
 
-openModalButton?.addEventListener('click', openModal);
-closeModalButton?.addEventListener('click', closeModal);
-closeFullscreenButton?.addEventListener('click', closeFullscreen);
+function showNextFullscreenImage() {
+  if (currentImageGroup.length === 0) return;
 
-modal?.addEventListener('click', (event) => {
-  if (event.target === modal) {
-    closeModal();
-  }
-});
+  currentFullscreenIndex =
+    currentFullscreenIndex === currentImageGroup.length - 1
+      ? 0
+      : currentFullscreenIndex + 1;
+
+  updateFullscreenImage();
+}
+
+function showPrevFullscreenImage() {
+  if (currentImageGroup.length === 0) return;
+
+  currentFullscreenIndex =
+    currentFullscreenIndex === 0
+      ? currentImageGroup.length - 1
+      : currentFullscreenIndex - 1;
+
+  updateFullscreenImage();
+}
+
+closeFullscreenButton?.addEventListener('click', closeFullscreen);
+fullscreenNextButton?.addEventListener('click', showNextFullscreenImage);
+fullscreenPrevButton?.addEventListener('click', showPrevFullscreenImage);
 
 fullscreenModal?.addEventListener('click', (event) => {
   if (event.target === fullscreenModal) {
@@ -148,8 +184,14 @@ fullscreenModal?.addEventListener('click', (event) => {
   }
 });
 
-function makeImageClickableWithoutSelection(selector) {
-  document.querySelectorAll(selector).forEach((image) => {
+/* ================================
+   FUNÇÃO PARA TRANSFORMAR IMAGENS EM MODAL/CARROSSEL
+   ================================ */
+
+function prepareImageGroup(selector) {
+  const images = Array.from(document.querySelectorAll(selector));
+
+  images.forEach((image, index) => {
     image.setAttribute('draggable', 'false');
 
     image.addEventListener('mousedown', (event) => {
@@ -168,24 +210,107 @@ function makeImageClickableWithoutSelection(selector) {
     image.addEventListener('click', (event) => {
       event.preventDefault();
       clearTextSelection();
-      openFullscreenImage(image.src, image.alt);
+      openFullscreenCarousel(images, index);
     });
   });
 }
 
 /*
-  Imagens da galeria completa.
+  As 4 imagens principais da galeria inicial.
+  Ao abrir uma delas, as setas passam entre essas 4 imagens.
 */
-makeImageClickableWithoutSelection('.imgmodal');
+prepareImageGroup('.gallery-grid img');
 
 /*
-  As 4 imagens principais da galeria inicial também abrem em tela cheia.
+  Imagens da galeria completa.
+  Ao abrir uma delas, as setas passam entre todas as imagens do modal.
 */
-makeImageClickableWithoutSelection('.gallery-grid img');
+prepareImageGroup('.modal-content .imgmodal');
+
+/*
+  Imagens do Chalé A.
+*/
+prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(1) .img-chales img');
+
+/*
+  Imagens do Chalé B.
+*/
+prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(2) .img-chales img');
+
+/*
+  Imagens do Chalé C.
+*/
+prepareImageGroup('#acomodacoes .accommodation-card:nth-of-type(3) .img-chales img');
+
+/*
+  Feedbacks também ficam navegáveis em tela cheia.
+  Se não quiser isso, pode apagar essa linha.
+*/
+prepareImageGroup('.feedback-images img');
+
+/* ================================
+   TECLADO
+   ================================ */
 
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     closeFullscreen();
     closeModal();
   }
+
+  if (fullscreenModal?.classList.contains('show')) {
+    if (event.key === 'ArrowRight') {
+      showNextFullscreenImage();
+    }
+
+    if (event.key === 'ArrowLeft') {
+      showPrevFullscreenImage();
+    }
+  }
+});
+
+/* ================================
+   SWIPE NO CELULAR
+   ================================ */
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+function handleGalleryTouchStart(event) {
+  const touch = event.changedTouches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}
+
+function handleGalleryTouchEnd(event) {
+  const touch = event.changedTouches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  /*
+    Só troca a imagem se o gesto for realmente horizontal.
+    Isso evita trocar foto quando o usuário mexe o dedo um pouco na vertical.
+  */
+  if (Math.abs(deltaX) < 40) return;
+  if (Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+  if (deltaX < 0) {
+    showNextFullscreenImage();
+  } else {
+    showPrevFullscreenImage();
+  }
+}
+
+/*
+  Aplicamos tanto no modal quanto na própria imagem,
+  para o gesto funcionar melhor em qualquer área tocada.
+*/
+[fullscreenModal, fullscreenImage].forEach((element) => {
+  element?.addEventListener('touchstart', handleGalleryTouchStart, { passive: true });
+  element?.addEventListener('touchend', handleGalleryTouchEnd, { passive: true });
 });
